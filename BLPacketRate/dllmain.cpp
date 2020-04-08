@@ -5,7 +5,7 @@
 #include "detours/detours.h"
 #include "torque.hpp"
 
-typedef char(*NetConnection__getFinishedInitialGhostFn)(int* t);
+typedef char(*NetConnection__getFinishedInitialGhostFn)(int* wat);
 MologieDetours::Detour<NetConnection__getFinishedInitialGhostFn>* Detour__getFinishedInitialGhost = NULL;
 
 char Hooked__getFinishedInitialGhost(int* wat)
