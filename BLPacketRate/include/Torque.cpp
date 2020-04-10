@@ -205,6 +205,7 @@ bool torque_init()
 	InitScanner();
 
 	//Printf is required for debug output, so find it first
+	// r2000 Address: 004A0FF0
 	Printf = (PrintfFn)ScanFunc("\x8B\x4C\x24\x04\x8D\x44\x24\x08\x50\x6A\x00\x6A\x00\xE8\x00\x00\x00\x00\x83\xC4\x0C\xC3", "xxxxxxxxxxxxxx????xxxx");
 
 	//Do nothing if we don't find it :(

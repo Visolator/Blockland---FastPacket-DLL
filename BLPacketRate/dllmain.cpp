@@ -1,16 +1,12 @@
-// dllmain.cpp : Defines the entry point for the DLL application.
-#include <Windows.h>
-#include <stdio.h>
-//#include <cstdlib>
 #include "detours/detours.h"
 #include "torque.hpp"
 
-typedef char(*NetConnection__getFinishedInitialGhostFn)(int* wat);
-MologieDetours::Detour<NetConnection__getFinishedInitialGhostFn>* Detour__getFinishedInitialGhost = NULL;
+BLFUNC(int, , NetConnection__getFinishedInitialGhost, DWORD* obj)
+MologieDetours::Detour<NetConnection__getFinishedInitialGhostFn>* Detour_NetConnection__getFinishedInitialGhost = NULL;
 
-char Hooked__getFinishedInitialGhost(int* wat)
+int Hooked__getFinishedInitialGhost(DWORD* obj)
 {
-	return 0;
+	return 1;
 }
 
 bool init()
@@ -18,11 +14,15 @@ bool init()
 	if (!torque_init())
 		return false;
 
-	//1997 - 005CA5F0, 1986 - 005CA5D0
-	Detour__getFinishedInitialGhost = new MologieDetours::Detour<NetConnection__getFinishedInitialGhostFn>((NetConnection__getFinishedInitialGhostFn)0x5CA650, Hooked__getFinishedInitialGhost);
-	if (!Detour__getFinishedInitialGhost)
+	//2000 - 005CA650, 1986 - 005CA5D0
+	//NetConnection__getFinishedInitialGhost = (NetConnection__getFinishedInitialGhostFn)ScanFunc("\x8A\x81\xA8\x01\x00\x00", "xxxxxx"); // found wrong sig? got the same address as the patch before..
+
+	NetConnection__getFinishedInitialGhost = (NetConnection__getFinishedInitialGhostFn)0x5CA650;
+	Detour_NetConnection__getFinishedInitialGhost = new MologieDetours::Detour<NetConnection__getFinishedInitialGhostFn>(NetConnection__getFinishedInitialGhost, Hooked__getFinishedInitialGhost);
+	if (NetConnection__getFinishedInitialGhost == 0 || !NetConnection__getFinishedInitialGhost)
 	{
-		Printf("  Oh no.. ghost failed to init..");
+		delete Detour_NetConnection__getFinishedInitialGhost;
+		Printf("PacketRate.dll | Loaded unsuccessfully (unable to resolve)");
 		return false;
 	}
 
@@ -33,9 +33,9 @@ bool init()
 
 bool deinit()
 {
-	if (Detour__getFinishedInitialGhost != NULL)
+	if (Detour_NetConnection__getFinishedInitialGhost != NULL)
 	{
-		delete Detour__getFinishedInitialGhost;
+		delete Detour_NetConnection__getFinishedInitialGhost;
 	}
 
 	return true;
